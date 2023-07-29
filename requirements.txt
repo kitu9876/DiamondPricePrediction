@@ -3,5 +3,6 @@ numpy
 flask
 seaborn
 scikit-learn
+dataclasses
 
 -e .
