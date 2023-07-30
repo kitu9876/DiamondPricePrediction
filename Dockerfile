@@ -1,11 +1,27 @@
-FROM python:3.8-slim-buster
+FROM python:3.9-slim as builder
+
 WORKDIR /app
-COPY . /app
 
-RUN apt update -y && apt install awscli -y
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 unzip -y && pip install -r requirements.txt
-CMD ["python3", "app.py"]
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc
 
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+
+# final stage
+FROM python:3.9-slim
+
+COPY --from=builder /opt/venv /opt/venv
+
+WORKDIR /app
+
+ENV PATH="/opt/venv/bin:$PATH"
 
 #docker build -t diamondpriceprediction:latest .
