@@ -1,27 +1,12 @@
-FROM python:3.9-slim as builder
-
+FROM python:3.8-slim-buster
 WORKDIR /app
+COPY . /app
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+RUN apt update -y && apt install awscli -y
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc
+RUN apt-get update && pip install -r requirements.txt
 
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+CMD ["python3","app.py"]
 
 
-# final stage
-FROM python:3.9-slim
-
-COPY --from=builder /opt/venv /opt/venv
-
-WORKDIR /app
-
-ENV PATH="/opt/venv/bin:$PATH"
-
-#docker build -t diamondpriceprediction:latest .
+# docker build -t diamondpriceprediction:latest .
